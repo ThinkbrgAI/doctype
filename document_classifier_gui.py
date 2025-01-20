@@ -223,7 +223,10 @@ class DocumentClassifierGUI:
                 self.model_var.get(),
                 custom_prompt=custom_prompt
             )
-            # Get only PDF files
+            # Convert input_path to Path object for consistent handling
+            input_path = Path(input_path)
+            
+            # Get only PDF files with their relative paths
             files = [f for f in Path(input_path).glob("**/*") if f.is_file() and f.suffix.lower() == '.pdf']
             if not files:
                 self.queue.put(("error", "No PDF files found in the selected folder"))
@@ -241,15 +244,19 @@ class DocumentClassifierGUI:
                     self.queue.put(("status", "Processing stopped by user"))
                     break
                     
-                self.queue.put(("status", f"Processing: {file_path.name}"))
+                # Get relative path from input directory
+                rel_path = file_path.relative_to(input_path)
+                self.queue.put(("status", f"Processing: {rel_path}"))
                 self.queue.put(("progress", ("overall", i)))
                 
                 try:
                     classification = classifier.classify_document(str(file_path))
                     
-                    # Store the result
+                    # Store the result with full relative path
                     self.results.append({
+                        'Filepath': str(rel_path),
                         'Filename': file_path.name,
+                        'Directory': str(rel_path.parent),
                         'Category': classification['category'],
                         'Category Confidence': f"{classification['category_confidence']:.1f}%",
                         'Subcategory': classification['subcategory'],
@@ -258,7 +265,7 @@ class DocumentClassifierGUI:
                     
                     # Update GUI with result
                     self.queue.put(("file_result", (
-                        file_path.name, 
+                        str(rel_path),  # Show full relative path in log
                         classification['category'],
                         classification['subcategory'],
                         classification['category_confidence'],
@@ -266,9 +273,11 @@ class DocumentClassifierGUI:
                     )))
                     
                 except Exception as e:
-                    self.queue.put(("error", f"Error processing {file_path.name}: {str(e)}"))
+                    self.queue.put(("error", f"Error processing {rel_path}: {str(e)}"))
                     self.results.append({
+                        'Filepath': str(rel_path),
                         'Filename': file_path.name,
+                        'Directory': str(rel_path.parent),
                         'Category': 'Error',
                         'Category Confidence': '0%',
                         'Subcategory': 'Error',
@@ -319,9 +328,9 @@ class DocumentClassifierGUI:
                 elif msg_type == "error":
                     self.add_log_message(data, error=True)
                 elif msg_type == "file_result":
-                    filename, category, subcategory, cat_conf, subcat_conf = data
+                    filepath, category, subcategory, cat_conf, subcat_conf = data
                     self.add_log_message(
-                        f"Classified {filename}:\n"
+                        f"Classified {filepath}:\n"
                         f"  Category: {category} ({cat_conf:.1f}%)\n"
                         f"  Subcategory: {subcategory} ({subcat_conf:.1f}%)"
                     )
