@@ -221,24 +221,34 @@ class DocumentClassifierGUI:
                 self.queue.put(("progress", ("overall", i)))
                 
                 try:
-                    doc_type, confidence = classifier.classify_document(str(file_path))
+                    classification = classifier.classify_document(str(file_path))
                     
-                    # Store the result
+                    # Store the result with new format
                     self.results.append({
                         'Filename': file_path.name,
-                        'Document Type': doc_type,
-                        'Confidence Score': f"{confidence:.1f}%"
+                        'Category': classification['category'],
+                        'Category Confidence': f"{classification['category_confidence']:.1f}%",
+                        'Subcategory': classification['subcategory'],
+                        'Subcategory Confidence': f"{classification['subcategory_confidence']:.1f}%"
                     })
                     
                     # Update GUI with result
-                    self.queue.put(("file_result", (file_path.name, doc_type, confidence)))
+                    self.queue.put(("file_result", (
+                        file_path.name, 
+                        classification['category'],
+                        classification['subcategory'],
+                        classification['category_confidence'],
+                        classification['subcategory_confidence']
+                    )))
                     
                 except Exception as e:
                     self.queue.put(("error", f"Error processing {file_path.name}: {str(e)}"))
                     self.results.append({
                         'Filename': file_path.name,
-                        'Document Type': 'Error',
-                        'Confidence Score': '0%'
+                        'Category': 'Error',
+                        'Category Confidence': '0%',
+                        'Subcategory': 'Error',
+                        'Subcategory Confidence': '0%'
                     })
                 
                 processed = i
@@ -276,8 +286,12 @@ class DocumentClassifierGUI:
                 elif msg_type == "error":
                     self.add_log_message(data, error=True)
                 elif msg_type == "file_result":
-                    filename, doc_type, confidence = data
-                    self.add_log_message(f"Classified {filename}: {doc_type} ({confidence:.1f}%)")
+                    filename, category, subcategory, cat_conf, subcat_conf = data
+                    self.add_log_message(
+                        f"Classified {filename}:\n"
+                        f"  Category: {category} ({cat_conf:.1f}%)\n"
+                        f"  Subcategory: {subcategory} ({subcat_conf:.1f}%)"
+                    )
                 
                 self.queue.task_done()
                 
@@ -388,9 +402,21 @@ class DocumentClassifierGUI:
             if not file_path:  # User cancelled
                 return
                 
-            # Create DataFrame and save to Excel
+            # Create DataFrame with new columns
             df = pd.DataFrame(self.results)
-            df.to_excel(file_path, index=False)
+            
+            # Add summary sheet with category counts
+            with pd.ExcelWriter(file_path, engine='openpyxl') as writer:
+                # Write detailed results
+                df.to_excel(writer, sheet_name='Detailed Results', index=False)
+                
+                # Create summary by category
+                category_summary = df.groupby('Category').size().reset_index(name='Count')
+                category_summary.to_excel(writer, sheet_name='Category Summary', index=False)
+                
+                # Create summary by subcategory
+                subcategory_summary = df.groupby(['Category', 'Subcategory']).size().reset_index(name='Count')
+                subcategory_summary.to_excel(writer, sheet_name='Subcategory Summary', index=False)
             
             messagebox.showinfo("Success", f"Results exported successfully to:\n{file_path}")
             
