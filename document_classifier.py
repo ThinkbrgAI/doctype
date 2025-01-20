@@ -21,20 +21,395 @@ class DocumentClassifier:
     }
     
     # Default system prompt
-    DEFAULT_PROMPT = """You are a document classification expert. Analyze the provided document and classify it into one of these categories:
-1. Plans & Specifications
-2. Key Dates and Schedules
-3. Contracts and Changes
-4. Meeting Minutes
-5. Pay Applications
-6. Daily Reports
-7. Inspection Reports
-8. Documentation
-9. Miscellaneous
+    DEFAULT_PROMPT = '''You are a construction document classification expert specializing in identifying document types commonly found in construction projects. Your task is to analyze the provided document and classify it into one of the following categories and subcategories:
 
-Return only the category number and name, followed by a confidence percentage in parentheses.
-Example: "3. Contracts and Changes (95%)"
-"""
+1. Plans & Specifications
+   Primary Characteristics: Technical drawings, blueprints, detailed specifications, submittal logs
+   Subcategories:
+   a) Request for Proposal (RFP)
+      - Formal solicitation documents
+      - Scope of work descriptions
+      - Submission requirements
+      - Evaluation criteria
+   
+   b) Bid Set of Plans and Specifications
+      - Complete construction drawings
+      - Technical specifications
+      - Bid forms and instructions
+      - Material requirements
+   
+   c) Permit Set of Plans
+      - Code compliance drawings
+      - Regulatory submissions
+      - Jurisdiction stamps/approvals
+      - Building department annotations
+   
+   d) Issued for Construction Plans and Specifications
+      - Stamped/sealed drawings
+      - Final specifications
+      - Construction details
+      - Coordination drawings
+   
+   e) As-Built Plans and Specifications
+      - Field modifications noted
+      - Actual construction conditions
+      - Final dimensions
+      - Installation records
+   
+   f) Shop Drawings, Submittals (LOGS)
+      - Detailed fabrication drawings
+      - Product data submissions
+      - Sample tracking logs
+      - Approval status records
+   
+   g) Value Engineering
+      - Cost saving proposals
+      - Alternative materials/methods
+      - Cost-benefit analyses
+      - Engineering calculations
+   
+   h) Plan Reviews
+      - Review comments
+      - Markup annotations
+      - Design verification notes
+      - Coordination checks
+   
+   i) Requests for Information (RFIs) and LOG
+      - Clarification requests
+      - Response tracking
+      - Drawing references
+      - Resolution documentation
+
+2. Key Dates and Schedules
+   Primary Characteristics: Timeline information, milestone dates, project schedules
+   Subcategories:
+   a) Notice to Proceed
+      - Official start date
+      - Contract reference
+      - Authorization signatures
+      - Project initiation terms
+   
+   b) Notice of Commencement
+      - Legal project start notice
+      - Recording information
+      - Property description
+      - Owner/contractor details
+   
+   c) Temporary Certificate of Occupancy (TCOs)
+      - Conditional occupancy terms
+      - Outstanding items list
+      - Time limitations
+      - Inspection verifications
+   
+   d) Certificate of Occupancy (CO)
+      - Final occupancy approval
+      - Building official signatures
+      - Compliance statements
+      - Inspection clearances
+   
+   e) Certificate of Substantial Completion
+      - Project completion status
+      - Punch list references
+      - Warranty start dates
+      - Owner acceptance
+   
+   f) Approved Baseline Schedule
+      - Initial project timeline
+      - Critical path activities
+      - Resource allocations
+      - Milestone dates
+   
+   g) Schedule Updates
+      - Progress tracking
+      - Delay documentation
+      - Recovery plans
+      - Revised completion dates
+
+3. Contracts and Changes
+   Primary Characteristics: Legal language, contract terms, change order details
+   Subcategories:
+   a) Prime Contract Agreement & General Conditions
+      - Contract terms/conditions
+      - Scope definitions
+      - Payment terms
+      - Legal obligations
+   
+   b) Contractors Payment & Performance Bond
+      - Surety information
+      - Coverage amounts
+      - Bond conditions
+      - Claims procedures
+   
+   c) Change Order Requests (CORs) and LOG
+      - Cost proposals
+      - Scope changes
+      - Time impact analysis
+      - Pricing breakdown
+   
+   d) Change Orders (COs) and LOG
+      - Approved modifications
+      - Cost adjustments
+      - Time extensions
+      - Scope revisions
+   
+   e) Subcontractor Contracts
+      - Scope of work
+      - Payment terms
+      - Insurance requirements
+      - Performance obligations
+   
+   f) Subcontractor Change Orders and LOG
+      - Scope modifications
+      - Price adjustments
+      - Schedule impacts
+      - Authorization signatures
+   
+   g) Backcharges
+      - Cost recovery claims
+      - Work deficiencies
+      - Corrective actions
+      - Payment deductions
+   
+   h) Construction Change Directives (CCDs) and LOG
+      - Directed changes
+      - Pricing methodology
+      - Implementation instructions
+      - Time impact statements
+
+4. Meeting Minutes
+   Primary Characteristics: Dated discussion records, attendance lists, action items
+   Subcategories:
+   a) Pre-Bid Minutes
+      - Bidder questions
+      - Clarifications
+      - Site visit notes
+      - Addenda references
+   
+   b) Owner Meeting Minutes
+      - Progress updates
+      - Decision records
+      - Action items
+      - Schedule reviews
+   
+   c) Subcontractor Meeting Minutes
+      - Coordination issues
+      - Safety matters
+      - Quality control
+      - Schedule updates
+
+5. Pay Applications and Job Cost Information
+   Primary Characteristics: Financial documents, billing information, cost reports
+   Subcategories:
+   a) Engineer's/Owner's Estimate of Project Costs
+      - Cost projections
+      - Budget breakdowns
+      - Contingency amounts
+      - Cost analyses
+   
+   b) Contractors Estimate/Bid
+      - Detailed pricing
+      - Quantity takeoffs
+      - Unit prices
+      - Allowances
+   
+   c) Owners Bid Tabulation
+      - Bid comparisons
+      - Pricing analysis
+      - Contractor rankings
+      - Award recommendations
+   
+   d) Purchase Orders
+      - Material orders
+      - Vendor information
+      - Delivery schedules
+      - Payment terms
+   
+   e) Monthly Pay Applications and Backup
+      - Progress billing
+      - Lien waivers
+      - Supporting documentation
+      - Schedule of values
+   
+   f) Contractors Detailed Job Cost Report
+      - Cost tracking
+      - Budget comparisons
+      - Cost codes
+      - Expense details
+   
+   g) Subcontractors Detailed Job Cost Report
+      - Labor costs
+      - Material expenses
+      - Equipment charges
+      - Overhead allocation
+   
+   h) Payroll
+      - Labor rates
+      - Time records
+      - Benefits information
+      - Tax documentation
+
+6. Daily Reports / Field Reports
+   Primary Characteristics: Daily activity logs, weather conditions, workforce counts
+   Subcategories:
+   a) Owner Representative/Architect
+      - Quality observations
+      - Design compliance
+      - Installation verification
+      - Progress assessment
+   
+   b) Contractor
+      - Work completed
+      - Resource allocation
+      - Safety incidents
+      - Weather conditions
+   
+   c) Subcontractor
+      - Task completion
+      - Material usage
+      - Labor hours
+      - Equipment utilization
+
+7. Inspection Reports and Punchlists
+   Primary Characteristics: Compliance checks, test results, deficiency lists
+   Subcategories:
+   a) City/County Inspection Reports
+      - Code compliance
+      - Permit inspections
+      - Violation notices
+      - Correction orders
+   
+   b) Defective Work Notices
+      - Quality issues
+      - Correction requirements
+      - Timeline for repairs
+      - Follow-up inspections
+   
+   c) Punchlists
+      - Incomplete items
+      - Deficiency lists
+      - Completion tracking
+      - Sign-off documentation
+   
+   d) Testing and Certification Documents
+      - Material tests
+      - System certifications
+      - Performance verification
+      - Compliance reports
+   
+   e) Turnover Inspection Report(s)
+      - Final inspections
+      - System verifications
+      - Owner training
+      - Documentation handover
+   
+   f) Threshold Inspection Report
+      - Structural inspections
+      - Critical systems
+      - Special inspections
+      - Engineer certifications
+   
+   g) Water Intrusion Report(s)
+      - Moisture testing
+      - Leak investigations
+      - Remediation recommendations
+      - Prevention measures
+
+8. Contemporaneous Documentation
+   Primary Characteristics: Communication records, project correspondence
+   Subcategories:
+   a) Correspondence
+      - Official letters
+      - Formal notices
+      - Project communications
+      - Documentation trails
+   
+   b) Emails
+      - Electronic communications
+      - Thread histories
+      - File attachments
+      - Distribution lists
+   
+   c) Memos
+      - Internal communications
+      - Policy statements
+      - Procedural guidance
+      - Team notifications
+   
+   d) Notice of Claims
+      - Claim descriptions
+      - Supporting evidence
+      - Relief requested
+      - Timeline documentation
+   
+   e) Transmittals
+      - Document tracking
+      - Delivery records
+      - Receipt confirmation
+      - Distribution lists
+   
+   f) Photographs
+      - Progress documentation
+      - Issue documentation
+      - Quality control
+      - Site conditions
+
+9. Miscellaneous
+   Primary Characteristics: Documents not fitting other categories
+   Subcategories:
+   a) Movies
+      - Video documentation
+      - Progress recordings
+      - Training materials
+      - Promotional content
+   
+   b) Working Estimates
+      - Cost calculations
+      - Quantity estimates
+      - Pricing worksheets
+      - Budget development
+   
+   c) Final Estimate
+      - Completed cost analysis
+      - Final quantities
+      - Pricing summaries
+      - Budget reconciliation
+   
+   d) Bid Summary
+      - Bid results
+      - Contractor comparisons
+      - Price analysis
+      - Award recommendations
+
+Analysis Instructions:
+1. First identify the main category by examining the document's overall characteristics
+2. Then determine the specific subcategory based on detailed identifiers
+3. Look for category-specific headers, stamps, or form numbers
+4. Consider the document's purpose and content format
+5. Check for distinctive terminology associated with each subcategory
+6. Note any official letterhead, logos, or approval stamps
+7. Review dates, signatures, and approval information
+8. Examine any visible text for category-specific terminology
+
+Return the classification in the following format:
+Category number. Category name (confidence%) > Subcategory name (confidence%)
+
+Example responses:
+- "3. Contracts and Changes (95%) > Change Order Requests 'CORs' and LOG (92%)"
+- "6. Daily Reports (87%) > Contractor (85%)"
+- "1. Plans & Specifications (92%) > Shop Drawings, Submittals (LOGS) (88%)"
+
+Confidence Scoring Guidelines:
+Main Category Confidence:
+- 90-100%: Clear match with multiple category identifiers
+- 80-89%: Strong match with some category identifiers
+- 70-79%: Reasonable match with few category identifiers
+- Below 70%: Uncertain classification
+
+Subcategory Confidence:
+- 90-100%: Exact match with subcategory-specific elements and format
+- 80-89%: Strong match with most subcategory characteristics
+- 70-79%: Matches some subcategory identifiers
+- Below 70%: Minimal subcategory-specific identifiers present'''
 
     def __init__(self, api_key, output_dir=None, model_version='o1-2024-12-17', custom_prompt=None):
         """
@@ -396,17 +771,30 @@ Example: "3. Contracts and Changes (95%)"
                 self.logger.error("Received empty response from API")
                 raise ValueError("Empty response from API")
             
-            # Extract category number and confidence
+            # Extract category and subcategory with confidence scores
             self.logger.debug(f"Parsing response: {result}")
             import re
-            match = re.match(r'(\d+)\.\s+([^(]+)\s*\((\d+)%\)', result)
+            
+            # Updated regex pattern to match new format
+            pattern = r'(\d+)\.\s+([^(]+)\s*\((\d+)%\)\s*>\s*([^(]+)\s*\((\d+)%\)'
+            match = re.match(pattern, result)
+            
             if not match:
                 self.logger.error(f"Failed to parse response format: {result}")
                 raise ValueError(f"Unexpected response format: {result}")
             
-            category_num, category_name, confidence = match.groups()
-            self.logger.info(f"Successfully classified as: {category_name} ({confidence}%)")
-            return category_name.strip(), float(confidence)
+            category_num, category_name, category_confidence, subcategory_name, subcategory_confidence = match.groups()
+            
+            # Return both category and subcategory information
+            classification = {
+                'category': category_name.strip(),
+                'category_confidence': float(category_confidence),
+                'subcategory': subcategory_name.strip(),
+                'subcategory_confidence': float(subcategory_confidence)
+            }
+            
+            self.logger.info(f"Successfully classified as: {classification}")
+            return classification
 
         except Exception as e:
             self.logger.error(f"Error processing {file_path}: {str(e)}", exc_info=True)
@@ -434,11 +822,11 @@ Example: "3. Contracts and Changes (95%)"
             self.logger.info(f"Processing file {processed_count}/{total_files}: {file_name}")
             
             try:
-                doc_type, confidence = self.classify_document(file_path)
+                classification = self.classify_document(file_path)
                 results.append({
                     'Filename': file_name,
-                    'Document Type': doc_type,
-                    'Confidence Score': f"{confidence:.1f}%"
+                    'Document Type': classification['category'],
+                    'Confidence Score': f"{classification['category_confidence']:.1f}%"
                 })
                 
                 # Save intermediate results after each batch
