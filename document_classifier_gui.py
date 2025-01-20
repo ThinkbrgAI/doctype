@@ -29,7 +29,7 @@ class DocumentClassifierGUI:
     def setup_ui(self):
         """Setup the main UI components"""
         self.root.title("Document Classifier")
-        self.root.geometry("800x600")  # Made window larger to accommodate log
+        self.root.geometry("800x600")
         self.root.resizable(True, True)
         
         # Configure root grid to allow expansion
@@ -40,7 +40,11 @@ class DocumentClassifierGUI:
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         main_frame.grid_columnconfigure(1, weight=1)
-        main_frame.grid_rowconfigure(5, weight=1)  # Make log area expandable
+        
+        # Configure main_frame rows - make log frame expandable
+        for i in range(7):  # Adjust based on total rows
+            weight = 1 if i == 6 else 0  # Row 6 is the log frame
+            main_frame.grid_rowconfigure(i, weight=weight)
         
         # Model selection
         ttk.Label(main_frame, text="Select Model:").grid(row=0, column=0, sticky=tk.W, pady=5)
@@ -120,11 +124,11 @@ class DocumentClassifierGUI:
         log_frame.grid_rowconfigure(0, weight=1)
         
         # Create text widget and scrollbar
-        self.log_text = tk.Text(log_frame, height=8, wrap=tk.WORD)
+        self.log_text = tk.Text(log_frame, wrap=tk.WORD)  # Removed fixed height
         scrollbar = ttk.Scrollbar(log_frame, orient="vertical", command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=scrollbar.set)
         
-        # Grid log components
+        # Grid log components with sticky
         self.log_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
         
