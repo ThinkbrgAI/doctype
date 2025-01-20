@@ -1,154 +1,64 @@
-# Document Classification System
-A Python-based system for automatically classifying construction documents using OpenAI's GPT models.
+# Construction Document Classifier
 
-## Core Features
-- Batch processing of PDF documents
-- Two AI model options:
-  1. GPT-4 Vision (o1-2024-12-17) - Specialized for document analysis
-  2. GPT-4 Turbo (chatgpt-4o-latest) - Latest general-purpose model
-- Secure API key management
-- Progress tracking and error handling
-- Detailed logging and Excel report generation
+## Overview
+AI-powered document classification system for construction project documents. Uses GPT-4 Vision models to analyze and categorize documents based on industry-standard categories and subcategories.
 
-## Architecture
-
-### 1. Core Components
-```
-├── document_classifier.py    # Main classification engine
-├── run_classifier.py        # CLI interface
-├── config.py               # Configuration and API key management
-├── setup_environment.py    # Environment setup
-└── create_folder_structure.py  # Directory structure creation
-```
-
-### 2. Directory Structure
-```
-A:/doctype/
-├── input/
-│   ├── pdfs/         # Place PDFs here for classification
-│   └── test_files/   # Test documents
-├── output/
-│   ├── reports/      # Classification results (Excel)
-│   └── logs/         # System logs
-├── config/           # Project configuration
-└── samples/          # Sample document categories
-```
+## Key Features
+- Advanced document classification with 9 main categories and detailed subcategories
+- Recognition of common construction document elements and characteristics
+- High-accuracy classification using GPT-4 Vision models
+- Detailed confidence scoring for both category and subcategory matches
+- Image preprocessing for skewed or rotated documents
+- Comprehensive logging system
+- Multi-sheet Excel export with summaries
 
 ## Document Categories
 1. Plans & Specifications
-2. Key Dates and Schedules
-3. Contracts and Changes
-4. Meeting Minutes
-5. Pay Applications
-6. Daily Reports
-7. Inspection Reports
-8. Documentation
-9. Miscellaneous
+   - Recognizes technical drawings, blueprints, specifications
+   - Identifies standard title blocks, stamps, drawing numbers
+   - Detects revision marks, grid lines, detail callouts
 
-## Security Features
-- Encrypted API key storage
-- Secure file permissions
-- API key stored in user's home directory (~/.doctype/)
-- Environment variable support
+2. Key Dates and Schedules
+   - Identifies timeline information, milestone dates
+   - Recognizes schedule formats and critical path indicators
+   - Detects official stamps and recording information
+
+[Continue with other categories...]
 
 ## Usage
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 1. Setup
-```bash
-# Install dependencies
-pip install -r requirements.txt
+2. Run the application:
+   ```bash
+   python run_classifier.py
+   ```
 
-# Set up environment
-python setup_environment.py
+3. For command-line interface:
+   ```bash
+   python run_classifier.py --cli
+   ```
 
-# Configure API key
-python run_classifier.py
-```
+## Configuration
+- Secure API key storage
+- Customizable system prompts
+- Support for multiple GPT-4 Vision models
+- Configurable batch processing
 
-### 2. Running Classifications
+## Output
+- Detailed classification results with confidence scores
+- Category and subcategory identification
+- Excel reports with multiple summary sheets
+- Comprehensive processing logs
 
-#### GUI Mode (Default)
-```bash
-python run_classifier.py
-```
+## Models Supported
+- o1-2024-12-17 (GPT-4 Vision specific version)
+- chatgpt-4o-latest (GPT-4 Turbo)
 
-#### CLI Mode (Optional)
-```bash
-python run_classifier.py --cli
-```
-
-### 3. Output
-- Excel report with classifications
-- Confidence scores
-- Processing logs
-- Error reports
-
-## Technical Details
-
-### AI Models
-1. **GPT-4 Vision (o1-2024-12-17)**
-   - Specialized for document analysis
-   - Can process visual document features
-   - Best for complex document layouts
-
-2. **GPT-4 Turbo (chatgpt-4o-latest)**
-   - Latest general-purpose model
-   - Faster processing
-   - Good for text-heavy documents
-
-### Processing Pipeline
-1. Document Loading
-   - PDF validation
-   - File type checking
-   - Base64 encoding
-
-2. Classification
-   - Model-specific processing
-   - Confidence scoring
-   - Category mapping
-
-3. Results Management
-   - Excel report generation
-   - Error handling
-   - Progress tracking
-
-### Dependencies
-```
-fastapi>=0.68.0
-uvicorn>=0.15.0
-python-multipart>=0.0.5
-python-dotenv>=0.19.0
-openai>=1.0.0
-pdf2image>=1.16.3
-python-magic>=0.4.27
-pandas>=1.5.3
-Pillow>=9.5.0
-openpyxl>=3.1.2
-cryptography>=41.0.0
-```
-
-## Error Handling
-- PDF validation errors
-- API connection issues
-- Model processing errors
-- File system errors
-- Batch processing recovery
-
-## Performance
-- Batch processing for efficiency
-- Configurable batch sizes
-- Progress tracking
-- Intermediate result saving
-
-## Logging
-- Detailed processing logs
-- Error tracking
-- Performance metrics
-- Classification statistics
-
-## Future Enhancements
-- Additional model support
-- Enhanced error recovery
-- Automated testing
-- Performance optimization
-- UI improvements 
+## Requirements
+- Python 3.8+
+- OpenAI API key
+- PDF processing capabilities
+- Excel support for reporting 

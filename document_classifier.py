@@ -25,6 +25,17 @@ class DocumentClassifier:
 
 1. Plans & Specifications
    Primary Characteristics: Technical drawings, blueprints, detailed specifications, submittal logs
+   Common Elements:
+   - Standard title blocks with project name, number, and date
+   - Professional stamps (Architect, Engineer)
+   - Drawing numbers (A-101, S-201, etc.)
+   - Scale indicators and north arrows
+   - Revision clouds and delta numbers
+   - Grid lines and dimensions
+   - Detail callouts and section markers
+   - General notes and legends
+   - CSI format specification numbers
+   - AIA or other standard document numbers
    Subcategories:
    a) Request for Proposal (RFP)
       - Formal solicitation documents
@@ -82,6 +93,18 @@ class DocumentClassifier:
 
 2. Key Dates and Schedules
    Primary Characteristics: Timeline information, milestone dates, project schedules
+   Common Elements:
+   - Date stamps and time references
+   - Project milestone listings
+   - Substantial completion definitions
+   - Calendar layouts and timelines
+   - Duration calculations
+   - Critical path indicators
+   - Float time calculations
+   - Resource loading charts
+   - Predecessor/successor relationships
+   - Official notary stamps and seals
+   - Recording numbers and dates
    Subcategories:
    a) Notice to Proceed
       - Official start date
@@ -127,6 +150,20 @@ class DocumentClassifier:
 
 3. Contracts and Changes
    Primary Characteristics: Legal language, contract terms, change order details
+   Common Elements:
+   - Contract numbers and dates
+   - Article and section numbering
+   - Signature blocks and dates
+   - Legal entity names and addresses
+   - Insurance requirements
+   - Bond information
+   - Scope of work descriptions
+   - Unit prices and quantities
+   - Terms and conditions
+   - Time and material rates
+   - AIA or standard form numbers
+   - Change order numbers and tracking
+   - Cost breakdowns and markups
    Subcategories:
    a) Prime Contract Agreement & General Conditions
       - Contract terms/conditions
@@ -176,8 +213,29 @@ class DocumentClassifier:
       - Implementation instructions
       - Time impact statements
 
+    i) Change Notices
+      - Change requests
+      - Approval status
+      - Implementation instructions
+      - Time impact statements
+
 4. Meeting Minutes
    Primary Characteristics: Dated discussion records, attendance lists, action items
+   Common Elements:
+   - Meeting number and date
+   - Attendee list with companies
+   - Distribution list
+   - Old business/new business format
+   - Action items with responsible parties
+   - Next meeting date/time
+   - Project status updates
+   - Safety discussions
+   - Schedule reviews
+   - RFI status updates
+   - Submittal status updates
+   - Quality control issues
+   - Weather conditions
+   - Signature blocks
    Subcategories:
    a) Pre-Bid Minutes
       - Bidder questions
@@ -199,6 +257,23 @@ class DocumentClassifier:
 
 5. Pay Applications and Job Cost Information
    Primary Characteristics: Financial documents, billing information, cost reports
+   Common Elements:
+   - AIA G702/G703 forms
+   - Schedule of values
+   - Previous/current payment columns
+   - Retention calculations
+   - Change order summaries
+   - Lien waivers
+   - Notary stamps
+   - Cost codes and descriptions
+   - Percentage complete calculations
+   - Labor rates and hours
+   - Material quantities and costs
+   - Equipment rates and hours
+   - Subcontractor breakdowns
+   - Certified payroll forms
+   - Tax ID numbers
+   - Invoice numbers and dates
    Subcategories:
    a) Engineer's/Owner's Estimate of Project Costs
       - Cost projections
@@ -250,6 +325,23 @@ class DocumentClassifier:
 
 6. Daily Reports / Field Reports
    Primary Characteristics: Daily activity logs, weather conditions, workforce counts
+   Common Elements:
+   - Date and time stamps
+   - Weather conditions (temp, precipitation)
+   - Manpower counts by trade
+   - Equipment on site
+   - Materials received
+   - Work completed descriptions
+   - Delays or disruptions
+   - Safety incidents
+   - Quality issues
+   - Visitor log
+   - Delivery records
+   - Hours worked
+   - Areas worked
+   - Problems encountered
+   - Site conditions
+   - Photos or sketches
    Subcategories:
    a) Owner Representative/Architect
       - Quality observations
@@ -271,6 +363,23 @@ class DocumentClassifier:
 
 7. Inspection Reports and Punchlists
    Primary Characteristics: Compliance checks, test results, deficiency lists
+   Common Elements:
+   - Inspector name and credentials
+   - Inspection date and time
+   - Code references
+   - Pass/fail checkboxes
+   - Location references
+   - Deficiency descriptions
+   - Correction requirements
+   - Follow-up dates
+   - Test results and data
+   - Photos of issues
+   - Compliance standards
+   - Sign-off signatures
+   - Permit numbers
+   - Building department stamps
+   - Test equipment used
+   - Calibration records
    Subcategories:
    a) City/County Inspection Reports
       - Code compliance
@@ -316,6 +425,23 @@ class DocumentClassifier:
 
 8. Contemporaneous Documentation
    Primary Characteristics: Communication records, project correspondence
+   Common Elements:
+   - Letterhead and logos
+   - Date and reference numbers
+   - Addressee information
+   - CC distribution lists
+   - Subject lines
+   - Reference numbers
+   - Tracking numbers
+   - Email headers
+   - Time stamps
+   - Response threading
+   - Attachment listings
+   - Signature blocks
+   - Company contact info
+   - Priority indicators
+   - Chain of communication
+   - File/photo references
    Subcategories:
    a) Correspondence
       - Official letters
@@ -340,6 +466,7 @@ class DocumentClassifier:
       - Supporting evidence
       - Relief requested
       - Timeline documentation
+      - Liquidated Damages
    
    e) Transmittals
       - Document tracking
@@ -355,6 +482,22 @@ class DocumentClassifier:
 
 9. Miscellaneous
    Primary Characteristics: Documents not fitting other categories
+   Common Elements:
+   - Various file formats
+   - Mixed content types
+   - Unique document structures
+   - Marketing materials
+   - Training documentation
+   - Site logistics plans
+   - Temporary facilities
+   - Progress photos/videos
+   - Press releases
+   - Company procedures
+   - Standard forms
+   - Templates
+   - Working documents
+   - Draft versions
+   - Internal memos
    Subcategories:
    a) Movies
       - Video documentation
@@ -775,22 +918,43 @@ Subcategory Confidence:
             self.logger.debug(f"Parsing response: {result}")
             import re
             
-            # Updated regex pattern to match new format
-            pattern = r'(\d+)\.\s+([^(]+)\s*\((\d+)%\)\s*>\s*([^(]+)\s*\((\d+)%\)'
-            match = re.match(pattern, result)
+            # Try patterns in order of most specific to most general
+            patterns = [
+                # Standard format
+                r'.*?(\d+)\.\s+([^(]+)\s*\((\d+)%\)\s*>\s*([^(]+)\s*\((\d+)%\)',
+                
+                # No subcategory with various formats
+                r'.*?(\d+)\.\s+([^(]+)\s*\((\d+)%\)\s*>\s*(?:\[)?(?:No (?:clear )?[Ss]ubcategory|N/A)(?:\s*\((?:N/A|\d+)%?\))?(?:\])?',
+                
+                # Category only with reasoning
+                r'.*?(\d+)\.\s+([^(]+)\s*\((\d+)%\)'
+            ]
+            
+            match = None
+            for pattern in patterns:
+                match = re.search(pattern, result, re.DOTALL)
+                if match:
+                    break
             
             if not match:
                 self.logger.error(f"Failed to parse response format: {result}")
                 raise ValueError(f"Unexpected response format: {result}")
             
-            category_num, category_name, category_confidence, subcategory_name, subcategory_confidence = match.groups()
+            # Handle different match groups based on pattern matched
+            if len(match.groups()) == 5:  # Full category and subcategory
+                category_num, category_name, category_confidence, subcategory_name, subcategory_confidence = match.groups()
+            elif len(match.groups()) == 3:  # Category only
+                category_num, category_name, category_confidence = match.groups()
+                subcategory_name = "No Subcategory"
+                subcategory_confidence = "0"
             
             # Return both category and subcategory information
             classification = {
                 'category': category_name.strip(),
                 'category_confidence': float(category_confidence),
-                'subcategory': subcategory_name.strip(),
-                'subcategory_confidence': float(subcategory_confidence)
+                'subcategory': subcategory_name.strip() if 'subcategory_name' in locals() else "No Subcategory",
+                'subcategory_confidence': float(subcategory_confidence) if 'subcategory_confidence' in locals() else 0.0,
+                'full_response': result
             }
             
             self.logger.info(f"Successfully classified as: {classification}")
@@ -825,8 +989,10 @@ Subcategory Confidence:
                 classification = self.classify_document(file_path)
                 results.append({
                     'Filename': file_name,
-                    'Document Type': classification['category'],
-                    'Confidence Score': f"{classification['category_confidence']:.1f}%"
+                    'Category': classification['category'],
+                    'Category Confidence': f"{classification['category_confidence']:.1f}%",
+                    'Subcategory': classification['subcategory'],
+                    'Subcategory Confidence': f"{classification['subcategory_confidence']:.1f}%"
                 })
                 
                 # Save intermediate results after each batch
@@ -838,8 +1004,10 @@ Subcategory Confidence:
                 self.logger.error(f"Error processing {file_name}: {str(e)}")
                 results.append({
                     'Filename': file_name,
-                    'Document Type': 'Processing Error',
-                    'Confidence Score': '0.0%'
+                    'Category': 'Processing Error',
+                    'Category Confidence': '0.0%',
+                    'Subcategory': 'Error',
+                    'Subcategory Confidence': '0.0%'
                 })
 
         # Save final results
@@ -903,7 +1071,7 @@ def main():
         # Process folder and display results
         results_df = classifier.process_folder(folder_path, batch_size)
         print("\nClassification Results Summary:")
-        print(results_df.groupby('Document Type').size())
+        print(results_df.groupby('Category').size())
 
     except Exception as e:
         print(f"Error: {str(e)}")
