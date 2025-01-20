@@ -24,6 +24,7 @@ class DocumentClassifierGUI:
         self.setup_ui()
         
         self.results = []  # Store classification results
+        self.processing = False  # Flag to track processing state
     
     def setup_ui(self):
         """Setup the main UI components"""
@@ -92,13 +93,17 @@ class DocumentClassifierGUI:
         self.overall_progress = ttk.Progressbar(progress_frame, length=400, mode='determinate')
         self.overall_progress.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         
-        # Add buttons frame for Start and Export
+        # Add buttons frame for Start, Stop, and Export
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.grid(row=4, column=0, columnspan=3, pady=10)
         
         # Start button
         self.start_button = ttk.Button(buttons_frame, text="Start Classification", command=self.start_classification)
         self.start_button.pack(side=tk.LEFT, padx=5)
+        
+        # Stop button (initially disabled)
+        self.stop_button = ttk.Button(buttons_frame, text="Stop Processing", command=self.stop_processing, state='disabled')
+        self.stop_button.pack(side=tk.LEFT, padx=5)
         
         # Export button (initially disabled)
         self.export_button = ttk.Button(buttons_frame, text="Export Results", command=self.export_results, state='disabled')
@@ -152,6 +157,7 @@ class DocumentClassifierGUI:
             self.input_path_var.set(folder_path)
 
     def start_classification(self):
+        """Start the classification process"""
         input_path = self.input_path_var.get()
         if not input_path:
             self.add_log_message("Error: Please select an input folder", error=True)
@@ -164,14 +170,25 @@ class DocumentClassifierGUI:
         # Clear log
         self.log_text.delete(1.0, tk.END)
         
-        # Disable start button
+        self.processing = True
         self.start_button.state(['disabled'])
+        self.stop_button.state(['!disabled'])
+        self.export_button.state(['disabled'])
         
-        # Start processing thread
-        thread = threading.Thread(target=self.process_documents, args=(input_path, str(output_path)))
+        # Start processing in a new thread
+        thread = threading.Thread(target=self.process_documents, args=(
+            input_path,
+            str(output_path)
+        ))
         thread.daemon = True
         thread.start()
 
+    def stop_processing(self):
+        """Safely stop the classification process"""
+        self.processing = False
+        self.stop_button.state(['disabled'])
+        self.queue.put(("status", "Stopping... Please wait for current file to complete."))
+        
     def process_documents(self, input_path, output_path):
         try:
             # Get API key
@@ -214,16 +231,19 @@ class DocumentClassifierGUI:
             
             # Clear previous results
             self.results = []
-            self.export_button.state(['disabled'])
             
             for i, file_path in enumerate(files, 1):
+                if not self.processing:
+                    self.queue.put(("status", "Processing stopped by user"))
+                    break
+                    
                 self.queue.put(("status", f"Processing: {file_path.name}"))
                 self.queue.put(("progress", ("overall", i)))
                 
                 try:
                     classification = classifier.classify_document(str(file_path))
                     
-                    # Store the result with new format
+                    # Store the result
                     self.results.append({
                         'Filename': file_path.name,
                         'Category': classification['category'],
@@ -254,14 +274,23 @@ class DocumentClassifierGUI:
                 processed = i
                 self.queue.put(("progress", ("overall", processed)))
             
-            # Enable export button when processing is complete
+            # Enable export button when processing is complete or stopped
             self.export_button.state(['!disabled'])
+            self.start_button.state(['!disabled'])
+            self.stop_button.state(['disabled'])
             
-            self.queue.put(("complete", None))
+            if self.processing:
+                self.queue.put(("complete", None))
+            else:
+                self.queue.put(("status", "Processing stopped. You can export partial results."))
             
         except Exception as e:
             self.queue.put(("error", f"Classification error: {str(e)}"))
             self.start_button.state(['!disabled'])
+            self.stop_button.state(['disabled'])
+            
+        finally:
+            self.processing = False
 
     def check_queue(self):
         try:
