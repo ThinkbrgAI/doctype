@@ -109,7 +109,7 @@ class DocumentClassifierGUI:
         self.tokens_label = ttk.Label(cost_frame, text="0 in / 0 out")
         self.tokens_label.grid(row=1, column=1, sticky=tk.W)
         
-        # Add buttons frame for Start, Stop, and Export
+        # Add buttons frame for Start, Stop, Export, and Organize
         buttons_frame = ttk.Frame(main_frame)
         buttons_frame.grid(row=5, column=0, columnspan=3, pady=10)
         
@@ -124,6 +124,10 @@ class DocumentClassifierGUI:
         # Export button (initially disabled)
         self.export_button = ttk.Button(buttons_frame, text="Export Results", command=self.export_results, state='disabled')
         self.export_button.pack(side=tk.LEFT, padx=5)
+        
+        # Organize Files button (initially disabled)
+        self.organize_button = ttk.Button(buttons_frame, text="Organize Files", command=self.organize_files, state='disabled')
+        self.organize_button.pack(side=tk.LEFT, padx=5)
         
         # Status label
         self.status_label = ttk.Label(main_frame, text="")
@@ -190,6 +194,7 @@ class DocumentClassifierGUI:
         self.start_button.state(['disabled'])
         self.stop_button.state(['!disabled'])
         self.export_button.state(['disabled'])
+        self.organize_button.state(['disabled'])
         
         # Start processing in a new thread
         thread = threading.Thread(target=self.process_documents, args=(
@@ -315,8 +320,9 @@ class DocumentClassifierGUI:
                 processed = i
                 self.queue.put(("progress", ("overall", processed)))
             
-            # Enable export button when processing is complete or stopped
+            # Enable export and organize buttons when processing is complete or stopped
             self.export_button.state(['!disabled'])
+            self.organize_button.state(['!disabled'])
             self.start_button.state(['!disabled'])
             self.stop_button.state(['disabled'])
             
@@ -496,6 +502,83 @@ class DocumentClassifierGUI:
             
         except Exception as e:
             messagebox.showerror("Export Error", f"Error exporting results:\n{str(e)}")
+
+    def organize_files(self):
+        """Copy files to categorized folder structure"""
+        if not self.results:
+            messagebox.showwarning("No Results", "No classification results to organize.")
+            return
+            
+        try:
+            # Get input and output paths
+            input_path = Path(self.input_path_var.get())
+            output_base = input_path / "organized_files"
+            
+            # Confirm with user
+            if messagebox.askyesno("Organize Files", 
+                f"This will create a structured folder hierarchy in:\n{output_base}\n\nContinue?"):
+                
+                # Track progress
+                total_files = len(self.results)
+                copied_files = 0
+                errors = []
+                
+                for result in self.results:
+                    try:
+                        # Create category and subcategory folders
+                        category_folder = output_base / self._sanitize_path(result['Category'])
+                        if result['Subcategory'] != 'No Subcategory':
+                            target_folder = category_folder / self._sanitize_path(result['Subcategory'])
+                        else:
+                            target_folder = category_folder
+                            
+                        # Create folder structure
+                        target_folder.mkdir(parents=True, exist_ok=True)
+                        
+                        # Source and target file paths
+                        source_file = input_path / result['Filepath']
+                        target_file = target_folder / result['Filename']
+                        
+                        # Handle duplicate filenames
+                        counter = 1
+                        base_name = target_file.stem
+                        extension = target_file.suffix
+                        while target_file.exists():
+                            target_file = target_folder / f"{base_name}_{counter}{extension}"
+                            counter += 1
+                        
+                        # Copy file
+                        import shutil
+                        shutil.copy2(source_file, target_file)
+                        copied_files += 1
+                        
+                        # Update status
+                        self.status_label.config(text=f"Copying files: {copied_files}/{total_files}")
+                        
+                    except Exception as e:
+                        errors.append(f"Error copying {result['Filepath']}: {str(e)}")
+                
+                # Show completion message
+                if errors:
+                    messagebox.showwarning("Organization Complete with Errors",
+                        f"Copied {copied_files} of {total_files} files.\n\nErrors:\n" + "\n".join(errors))
+                else:
+                    messagebox.showinfo("Organization Complete",
+                        f"Successfully copied {copied_files} files to categorized folders.")
+                
+                # Reset status
+                self.status_label.config(text="File organization complete")
+                
+        except Exception as e:
+            messagebox.showerror("Organization Error", f"Error organizing files:\n{str(e)}")
+
+    def _sanitize_path(self, path_str):
+        """Convert string to valid path name"""
+        # Remove or replace invalid characters
+        invalid_chars = '<>:"/\\|?*'
+        for char in invalid_chars:
+            path_str = path_str.replace(char, '_')
+        return path_str.strip()
 
 def main():
     root = tk.Tk()
