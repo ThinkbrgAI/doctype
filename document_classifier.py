@@ -20,6 +20,12 @@ class DocumentClassifier:
         'chatgpt-4o-latest': 'chatgpt-4o-latest'  # Use exact model name
     }
     
+    # Model costs per 1M tokens
+    MODEL_COSTS = {
+        'o1-2024-12-17': {'input': 15.00 / 1_000_000, 'output': 60.00 / 1_000_000},  # Cost per token
+        'chatgpt-4o-latest': {'input': 2.50 / 1_000_000, 'output': 10.00 / 1_000_000}
+    }
+    
     # Default system prompt
     DEFAULT_PROMPT = '''You are a construction document classification expert specializing in identifying document types commonly found in construction projects. Your task is to analyze the provided document and classify it into one of the following categories and subcategories:
 
@@ -896,15 +902,19 @@ Subcategory Confidence:
             self.logger.debug(f"Messages Structure: {messages}")
             self.logger.debug(f"Image size (bytes): {len(base64_image)}")
 
-            # Make API call with simplified parameters
+            # Make API call
             self.logger.info("Sending request to OpenAI API...")
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages
             )
 
-            # Log the complete response
-            self.logger.debug(f"Complete API Response: {response}")
+            # Calculate costs
+            input_tokens = response.usage.prompt_tokens
+            output_tokens = response.usage.completion_tokens
+            input_cost = input_tokens * self.MODEL_COSTS[self.model_version]['input']
+            output_cost = output_tokens * self.MODEL_COSTS[self.model_version]['output']
+            total_cost = input_cost + output_cost
             
             # Parse the response
             result = response.choices[0].message.content.strip()
@@ -954,7 +964,10 @@ Subcategory Confidence:
                 'category_confidence': float(category_confidence),
                 'subcategory': subcategory_name.strip() if 'subcategory_name' in locals() else "No Subcategory",
                 'subcategory_confidence': float(subcategory_confidence) if 'subcategory_confidence' in locals() else 0.0,
-                'full_response': result
+                'full_response': result,
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens,
+                'cost': total_cost
             }
             
             self.logger.info(f"Successfully classified as: {classification}")

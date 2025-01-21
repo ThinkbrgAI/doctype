@@ -97,9 +97,21 @@ class DocumentClassifierGUI:
         self.overall_progress = ttk.Progressbar(progress_frame, length=400, mode='determinate')
         self.overall_progress.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         
+        # Add cost tracking frame
+        cost_frame = ttk.LabelFrame(main_frame, text="Cost Tracking", padding="5")
+        cost_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        
+        ttk.Label(cost_frame, text="Total Cost:").grid(row=0, column=0, sticky=tk.W)
+        self.cost_label = ttk.Label(cost_frame, text="$0.00")
+        self.cost_label.grid(row=0, column=1, sticky=tk.W)
+        
+        ttk.Label(cost_frame, text="Tokens Used:").grid(row=1, column=0, sticky=tk.W)
+        self.tokens_label = ttk.Label(cost_frame, text="0 in / 0 out")
+        self.tokens_label.grid(row=1, column=1, sticky=tk.W)
+        
         # Add buttons frame for Start, Stop, and Export
         buttons_frame = ttk.Frame(main_frame)
-        buttons_frame.grid(row=4, column=0, columnspan=3, pady=10)
+        buttons_frame.grid(row=5, column=0, columnspan=3, pady=10)
         
         # Start button
         self.start_button = ttk.Button(buttons_frame, text="Start Classification", command=self.start_classification)
@@ -115,11 +127,11 @@ class DocumentClassifierGUI:
         
         # Status label
         self.status_label = ttk.Label(main_frame, text="")
-        self.status_label.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E))
+        self.status_label.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E))
         
         # Log area
         log_frame = ttk.LabelFrame(main_frame, text="Log", padding="5")
-        log_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
+        log_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
         log_frame.grid_columnconfigure(0, weight=1)
         log_frame.grid_rowconfigure(0, weight=1)
         
@@ -138,7 +150,7 @@ class DocumentClassifierGUI:
         
         # Add API key management button
         api_frame = ttk.Frame(main_frame)
-        api_frame.grid(row=7, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        api_frame.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         ttk.Button(api_frame, text="Change API Key", command=self.prompt_api_key).pack(side=tk.RIGHT)
 
     def add_log_message(self, message, error=False):
@@ -239,6 +251,10 @@ class DocumentClassifierGUI:
             # Clear previous results
             self.results = []
             
+            total_cost = 0.0
+            total_input_tokens = 0
+            total_output_tokens = 0
+            
             for i, file_path in enumerate(files, 1):
                 if not self.processing:
                     self.queue.put(("status", "Processing stopped by user"))
@@ -251,6 +267,18 @@ class DocumentClassifierGUI:
                 
                 try:
                     classification = classifier.classify_document(str(file_path))
+                    
+                    # Update totals
+                    total_cost += classification['cost']
+                    total_input_tokens += classification['input_tokens']
+                    total_output_tokens += classification['output_tokens']
+                    
+                    # Update cost display
+                    self.queue.put(("cost_update", (
+                        total_cost,
+                        total_input_tokens,
+                        total_output_tokens
+                    )))
                     
                     # Store the result with full relative path
                     self.results.append({
@@ -334,6 +362,10 @@ class DocumentClassifierGUI:
                         f"  Category: {category} ({cat_conf:.1f}%)\n"
                         f"  Subcategory: {subcategory} ({subcat_conf:.1f}%)"
                     )
+                elif msg_type == "cost_update":
+                    total_cost, input_tokens, output_tokens = data
+                    self.cost_label.config(text=f"${total_cost:.2f}")
+                    self.tokens_label.config(text=f"{input_tokens:,} in / {output_tokens:,} out")
                 
                 self.queue.task_done()
                 
