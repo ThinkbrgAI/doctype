@@ -8,6 +8,7 @@ from openai import OpenAI
 import threading
 import queue
 import pandas as pd
+import shutil
 
 class DocumentClassifierGUI:
     def __init__(self, root):
@@ -156,6 +157,18 @@ class DocumentClassifierGUI:
         api_frame = ttk.Frame(main_frame)
         api_frame.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         ttk.Button(api_frame, text="Change API Key", command=self.prompt_api_key).pack(side=tk.RIGHT)
+        
+        # Add reorganize frame after API key management
+        reorg_frame = ttk.LabelFrame(main_frame, text="Reorganize from Excel", padding="5")
+        reorg_frame.grid(row=9, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        
+        # Import Excel button
+        ttk.Button(reorg_frame, text="Import Excel", command=self.import_excel).pack(side=tk.LEFT, padx=5)
+        
+        # Reorganize button (initially disabled)
+        self.reorganize_button = ttk.Button(reorg_frame, text="Reorganize Files", 
+            command=self.reorganize_from_excel, state='disabled')
+        self.reorganize_button.pack(side=tk.LEFT, padx=5)
 
     def add_log_message(self, message, error=False):
         """Add message to log area with optional error formatting"""
@@ -525,7 +538,7 @@ class DocumentClassifierGUI:
                 
                 for result in self.results:
                     try:
-                        # Create category and subcategory folders
+                        # Create category and subcategory folders with sanitized names
                         category_folder = output_base / self._sanitize_path(result['Category'])
                         if result['Subcategory'] != 'No Subcategory':
                             target_folder = category_folder / self._sanitize_path(result['Subcategory'])
@@ -537,7 +550,11 @@ class DocumentClassifierGUI:
                         
                         # Source and target file paths
                         source_file = input_path / result['Filepath']
-                        target_file = target_folder / result['Filename']
+                        
+                        # Sanitize filename while preserving extension
+                        filename = Path(result['Filename'])
+                        safe_filename = self._sanitize_path(filename.stem) + filename.suffix
+                        target_file = target_folder / safe_filename
                         
                         # Handle duplicate filenames
                         counter = 1
@@ -547,9 +564,9 @@ class DocumentClassifierGUI:
                             target_file = target_folder / f"{base_name}_{counter}{extension}"
                             counter += 1
                         
-                        # Copy file
+                        # Copy file using absolute paths
                         import shutil
-                        shutil.copy2(source_file, target_file)
+                        shutil.copy2(str(source_file.absolute()), str(target_file.absolute()))
                         copied_files += 1
                         
                         # Update status
@@ -557,6 +574,7 @@ class DocumentClassifierGUI:
                         
                     except Exception as e:
                         errors.append(f"Error copying {result['Filepath']}: {str(e)}")
+                        self.add_log_message(f"Error copying {result['Filepath']}: {str(e)}", error=True)
                 
                 # Show completion message
                 if errors:
@@ -574,11 +592,285 @@ class DocumentClassifierGUI:
 
     def _sanitize_path(self, path_str):
         """Convert string to valid path name"""
+        # Map long category names to shorter versions
+        category_map = {
+            'Pay Applications and Job Cost Information': 'Pay Apps',
+            'Contemporaneous Documentation': 'Contemp Docs',
+            'Inspection Reports and Punchlists': 'Inspections',
+            'Daily Reports / Field Reports': 'Daily Reports',
+            'Plans & Specifications': 'Plans-Specs',
+            'Key Dates and Schedules': 'Schedules',
+            'Contracts and Changes': 'Contracts'
+        }
+        
+        # Remove any GPT commentary (text after quotes or periods)
+        if '"' in path_str:
+            path_str = path_str.split('"')[0]
+        if '. ' in path_str:
+            path_str = path_str.split('. ')[0]
+        
+        # Clean up the string
+        path_str = path_str.strip()
+        
+        # Try to map to shorter name first
+        sanitized = category_map.get(path_str, path_str)
+        
         # Remove or replace invalid characters
-        invalid_chars = '<>:"/\\|?*'
+        invalid_chars = '<>:"/\\|?*[](){}!@#$%^&+=`~.'
+        
+        # Replace invalid characters with underscores
         for char in invalid_chars:
-            path_str = path_str.replace(char, '_')
-        return path_str.strip()
+            sanitized = sanitized.replace(char, '_')
+        
+        # Replace multiple spaces/underscores with single underscore and remove trailing spaces
+        sanitized = '_'.join(word.strip() for word in sanitized.split())
+        while '__' in sanitized:
+            sanitized = sanitized.replace('__', '_')
+        
+        # Remove leading/trailing underscores and spaces
+        sanitized = sanitized.strip('_ ')
+        
+        # Enforce maximum length (without trailing spaces)
+        if len(sanitized) > 30:
+            sanitized = sanitized[:27].rstrip() + '...'
+            
+        # Final cleanup to ensure no trailing spaces
+        sanitized = sanitized.rstrip()
+            
+        return sanitized
+
+    def import_excel(self):
+        """Import classification results from modified Excel file"""
+        try:
+            file_path = filedialog.askopenfilename(
+                title="Select Excel Results File",
+                filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")]
+            )
+            
+            if not file_path:
+                return
+                
+            # Read Excel file
+            df = pd.read_excel(file_path, sheet_name='Detailed Results')
+            
+            # Validate required columns
+            required_cols = ['Filepath', 'Category', 'Subcategory']
+            if not all(col in df.columns for col in required_cols):
+                raise ValueError("Excel file must contain columns: Filepath, Category, Subcategory")
+            
+            # Convert to results format
+            self.results = df.to_dict('records')
+            
+            # Enable reorganize button
+            self.reorganize_button.state(['!disabled'])
+            
+            # Show summary of changes
+            categories = df.groupby('Category').size()
+            self.add_log_message("\nImported classifications:")
+            for cat, count in categories.items():
+                self.add_log_message(f"{cat}: {count} files")
+            
+            messagebox.showinfo("Import Success", 
+                f"Successfully imported {len(df)} classifications.\nYou can now reorganize files based on these changes.")
+            
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Error importing Excel file:\n{str(e)}")
+            self.reorganize_button.state(['disabled'])
+
+    def reorganize_from_excel(self):
+        """Reorganize files based on imported Excel classifications"""
+        if not self.results:
+            messagebox.showwarning("No Data", "Please import an Excel file first.")
+            return
+            
+        try:
+            input_path = Path(filedialog.askdirectory(
+                title="Select Source Folder (containing original files)"
+            ))
+            
+            if not input_path:
+                return
+                
+            # Use shorter base folder name with new name
+            output_base = input_path / "re-organized_files"  # Changed from "classified_docs"
+            output_base.mkdir(parents=True, exist_ok=True)
+            
+            if messagebox.askyesno("Reorganize Files", 
+                f"This will reorganize files into:\n{output_base}\n\nContinue?"):
+                
+                total_files = len(self.results)
+                copied_files = 0
+                errors = []
+                
+                # Create all target folders first
+                unique_categories = {(r['Category'], r['Subcategory']) for r in self.results}
+                for category, subcategory in unique_categories:
+                    try:
+                        category_folder = output_base / self._sanitize_path(category)[:20]
+                        category_folder.mkdir(exist_ok=True)
+                        
+                        if subcategory != 'No Subcategory':
+                            subcat_folder = category_folder / self._sanitize_path(subcategory)[:20]
+                            subcat_folder.mkdir(exist_ok=True)
+                    except Exception as e:
+                        self.add_log_message(f"Error creating folder for {category}/{subcategory}: {e}", error=True)
+                
+                # Add debug list for problematic files
+                problem_files = ['TCI_00000347.pdf', 'TCI_00000256.pdf', 'TCI_00000315.pdf']
+                
+                for result in self.results:
+                    try:
+                        # Setup target folders with debug info for problem files
+                        is_problem_file = Path(result['Filepath']).name in problem_files
+                        
+                        if is_problem_file:
+                            self.add_log_message("\nDEBUG - Target Path Creation:")
+                            self.add_log_message(f"Category: {result['Category']}")
+                            self.add_log_message(f"Sanitized Category: {self._sanitize_path(result['Category'])[:20]}")
+                            self.add_log_message(f"Subcategory: {result['Subcategory']}")
+                            self.add_log_message(f"Sanitized Subcategory: {self._sanitize_path(result['Subcategory'])[:20]}")
+                        
+                        # Create target folder path
+                        category_folder = output_base / self._sanitize_path(result['Category'])[:20]
+                        if result['Subcategory'] != 'No Subcategory':
+                            target_folder = category_folder / self._sanitize_path(result['Subcategory'])[:20]
+                        else:
+                            target_folder = category_folder
+                        
+                        if is_problem_file:
+                            self.add_log_message(f"Target folder path: {target_folder}")
+                            self.add_log_message(f"Target folder exists: {target_folder.exists()}")
+                            self.add_log_message(f"Parent exists: {target_folder.parent.exists()}")
+                            try:
+                                self.add_log_message(f"Can write to folder: {os.access(str(target_folder.parent), os.W_OK)}")
+                            except Exception as e:
+                                self.add_log_message(f"Error checking write access: {e}")
+                        
+                        # Ensure target folder exists
+                        try:
+                            target_folder.mkdir(parents=True, exist_ok=True)
+                            if is_problem_file:
+                                self.add_log_message("Successfully created target folder")
+                        except Exception as e:
+                            if is_problem_file:
+                                self.add_log_message(f"Error creating target folder: {e}")
+                            raise
+                        
+                        # Find source file using multiple strategies
+                        filepath = result['Filepath'].replace('\\', '/')
+                        filename = Path(filepath).name
+                        
+                        # Extra debugging for problem files
+                        is_problem_file = filename in problem_files
+                        if is_problem_file:
+                            self.add_log_message(f"\nDEBUG for {filename}:")
+                            self.add_log_message(f"Input path: {input_path}")
+                            self.add_log_message(f"Looking for file: {filepath}")
+                            self.add_log_message(f"Exists in Excel: {filename in [Path(r['Filepath']).name for r in self.results]}")
+                        
+                        # Search strategies with detailed logging
+                        source_file = None
+                        search_methods = [
+                            (lambda: input_path / filepath, "Full relative path"),
+                            (lambda: input_path / filename, "Direct filename"),
+                            (lambda: next(iter(input_path.glob(f"**/{filename}")), None), "Recursive glob"),
+                            (lambda: next((p for p in input_path.rglob(filename) 
+                                        if str(p).lower().endswith(filename.lower())), None), "Case-insensitive")
+                        ]
+                        
+                        for find_method, method_name in search_methods:
+                            try:
+                                found_path = find_method()
+                                if is_problem_file:
+                                    self.add_log_message(f"Trying {method_name}: {found_path}")
+                                    if found_path:
+                                        self.add_log_message(f"Path exists: {found_path.exists()}")
+                                        self.add_log_message(f"Is file: {found_path.is_file() if found_path.exists() else 'N/A'}")
+                                
+                                if found_path and found_path.is_file():
+                                    source_file = found_path
+                                    if is_problem_file:
+                                        self.add_log_message(f"Found file using {method_name}")
+                                    break
+                            except Exception as e:
+                                if is_problem_file:
+                                    self.add_log_message(f"Error with {method_name}: {str(e)}")
+                                continue
+                        
+                        # Try one last direct attempt for problem files
+                        if not source_file and is_problem_file:
+                            try:
+                                # Try exact path
+                                exact_path = input_path / "Timmons doc production 12.13.24" / "TCI 1-399" / filename
+                                self.add_log_message(f"Trying exact path: {exact_path}")
+                                self.add_log_message(f"Exists: {exact_path.exists()}")
+                                if exact_path.is_file():
+                                    source_file = exact_path
+                                    self.add_log_message("Found using exact path")
+                                
+                                # List contents of parent directory
+                                parent_dir = exact_path.parent
+                                if parent_dir.exists():
+                                    self.add_log_message(f"\nContents of {parent_dir}:")
+                                    for f in parent_dir.iterdir():
+                                        self.add_log_message(f"  {f.name}")
+                            except Exception as e:
+                                self.add_log_message(f"Error checking exact path: {str(e)}")
+                        
+                        if not source_file:
+                            raise FileNotFoundError(f"Could not find source file: {filepath}")
+                        
+                        # Create target file path with debug info
+                        target_file = target_folder / filename
+                        
+                        if is_problem_file:
+                            self.add_log_message("\nDEBUG - File Copy:")
+                            self.add_log_message(f"Source file: {source_file}")
+                            self.add_log_message(f"Target file: {target_file}")
+                            self.add_log_message(f"Source exists: {source_file.exists()}")
+                            self.add_log_message(f"Source is file: {source_file.is_file()}")
+                            self.add_log_message(f"Target folder exists: {target_folder.exists()}")
+                        
+                        # Handle duplicates
+                        counter = 1
+                        while target_file.exists():
+                            target_file = target_folder / f"{target_file.stem}_{counter}{target_file.suffix}"
+                            counter += 1
+                            if is_problem_file:
+                                self.add_log_message(f"Duplicate handling - new target: {target_file}")
+                        
+                        # Copy file with explicit error handling
+                        try:
+                            if is_problem_file:
+                                self.add_log_message("Attempting to copy file...")
+                            shutil.copy2(str(source_file), str(target_file))
+                            if is_problem_file:
+                                self.add_log_message("File copied successfully")
+                        except Exception as e:
+                            if is_problem_file:
+                                self.add_log_message(f"Copy operation failed: {str(e)}")
+                                self.add_log_message(f"Source path length: {len(str(source_file))}")
+                                self.add_log_message(f"Target path length: {len(str(target_file))}")
+                            raise
+                        copied_files += 1
+                        self.status_label.config(text=f"Reorganizing: {copied_files}/{total_files}")
+                        
+                    except Exception as e:
+                        errors.append(f"Error copying {result['Filepath']}: {str(e)}")
+                        self.add_log_message(f"Error copying {result['Filepath']}: {str(e)}", error=True)
+                
+                # Show completion message
+                if errors:
+                    messagebox.showwarning("Reorganization Complete with Errors",
+                        f"Copied {copied_files} of {total_files} files.\n\nErrors:\n" + "\n".join(errors))
+                else:
+                    messagebox.showinfo("Reorganization Complete",
+                        f"Successfully reorganized {copied_files} files according to Excel classifications.")
+                
+                self.status_label.config(text="File reorganization complete")
+                
+        except Exception as e:
+            messagebox.showerror("Reorganization Error", f"Error reorganizing files:\n{str(e)}")
 
 def main():
     root = tk.Tk()

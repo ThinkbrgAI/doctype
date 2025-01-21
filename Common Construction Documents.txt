@@ -1,65 +1,509 @@
-Plans & Specifications	
-	Request for Proposal
-	Bid Set of Plans and Specifications
-	Permit Set of Plans
-	Issued for Construction Plans and Specifications
-	As-Built Plans and Specifications
-	Shop Drawings, Submittals (LOGS)
-	Value Engineering
-	Plan Reviews
-	Requests for Information "RFIs" and LOG
-Key Dates and Schedules 	
-	Notice to Proceed
-	Notice of Commencement
-	Temporary Certificate of Occupancy(s) "TCOs"
-	Certificate of Occupancy "CO"
-	Certificate of Substantial Completion
-	Approved Baseline Schedule
-	Schedule Updates
-Contracts and Changes	
-	Prime Contract Agreement & General Conditions
-	Contractors Payment & Performance Bond
-	Change Order Requests "CORs" and LOG
-	Change Orders "COs" and LOG
-	Subcontractor Contracts
-	Subcontractor Change Orders and LOG
-	Backcharges
-	Construction Change Directives "CCDs" and LOG
-Meeting Minutes	
-	Pre-Bid Minutes
-	Owner Meeting Minutes
-	Subcontractor Meeting Minutes
-Pay Applications and Job Cost Information	
-	Engineer's/Owner's Estimate of Project Costs
-	Contractors Estimate/Bid
-	Owners Bid Tabulation
-	Purchase Orders
-	Monthly Pay Applications and Backup
-	Contractors Detailed Job Cost Report
-	Subcontractors Detailed Job Cost Report
-	Payroll
-Daily Reports / Field Reports	
-	Owner Representative/Architect
-	Contractor
-	Subcontractor
-Inspection Reports and Puchlists	
-	City/County Inspection Reports
-	Defective Work Notices
-	Punchlists
-	Testing and Certification Documents
-	Turnover Inspection Report(s)
-	Threshold Inspection Report
-	Water Intrusion Report(s)
-Contemporaneous Documentation	
-	Correspondence
-	Emails
-	Memos
-	Notice of Claims
-	Transmittals
-	Photographs
-Miscellaneous
-	Movies
-Working estimates?
-Final Estimate
-Bid Summary
+1. Plans & Specifications
+   Primary Characteristics: Technical drawings, blueprints, detailed specifications, submittal logs
+   Common Elements:
+   - Standard title blocks with project name, number, and date
+   - Professional stamps (Architect, Engineer)
+   - Drawing numbers (A-101, S-201, etc.)
+   - Scale indicators and north arrows
+   - Revision clouds and delta numbers
+   - Grid lines and dimensions
+   - Detail callouts and section markers
+   - General notes and legends
+   - CSI format specification numbers
+   - AIA or other standard document numbers
+
+   Subcategories:
+   a) Request for Proposal (RFP)
+      - Formal solicitation documents
+      - Scope of work descriptions
+      - Submission requirements
+      - Evaluation criteria
+   
+   b) Bid Set of Plans and Specifications
+      - Complete construction drawings
+      - Technical specifications
+      - Bid forms and instructions
+      - Material requirements
+   
+   c) Permit Set of Plans
+      - Code compliance drawings
+      - Regulatory submissions
+      - Jurisdiction stamps/approvals
+      - Building department annotations
+   
+   d) Issued for Construction Plans and Specifications
+      - Stamped/sealed drawings
+      - Final specifications
+      - Construction details
+      - Coordination drawings
+   
+   e) As-Built Plans and Specifications
+      - Field modifications noted
+      - Actual construction conditions
+      - Final dimensions
+      - Installation records
+   
+   f) Shop Drawings, Submittals (LOGS)
+      - Detailed fabrication drawings
+      - Product data submissions
+      - Sample tracking logs
+      - Approval status records
+   
+   g) Value Engineering
+      - Cost saving proposals
+      - Alternative materials/methods
+      - Cost-benefit analyses
+      - Engineering calculations
+   
+   h) Plan Reviews
+      - Review comments
+      - Markup annotations
+      - Design verification notes
+      - Coordination checks
+   
+   i) Requests for Information (RFIs) and LOG
+      - Clarification requests
+      - Response tracking
+      - Drawing references
+      - Resolution documentation
+
+2. Key Dates and Schedules
+   Primary Characteristics: Timeline information, milestone dates, project schedules
+   Common Elements:
+   - Date stamps and time references
+   - Project milestone listings
+   - Substantial completion definitions
+   - Calendar layouts and timelines
+   - Duration calculations
+   - Critical path indicators
+   - Float time calculations
+   - Resource loading charts
+   - Predecessor/successor relationships
+   - Official notary stamps and seals
+   - Recording numbers and dates
+
+   Subcategories:
+   a) Notice to Proceed
+      - Official start date
+      - Contract reference
+      - Authorization signatures
+      - Project initiation terms
+   
+   b) Notice of Commencement
+      - Legal project start notice
+      - Recording information
+      - Property description
+      - Owner/contractor details
+   
+   c) Temporary Certificate of Occupancy (TCOs)
+      - Conditional occupancy terms
+      - Outstanding items list
+      - Time limitations
+      - Inspection verifications
+   
+   d) Certificate of Occupancy (CO)
+      - Final occupancy approval
+      - Building official signatures
+      - Compliance statements
+      - Inspection clearances
+   
+   e) Certificate of Substantial Completion
+      - Project completion status
+      - Punch list references
+      - Warranty start dates
+      - Owner acceptance
+   
+   f) Approved Baseline Schedule
+      - Initial project timeline
+      - Critical path activities
+      - Resource allocations
+      - Milestone dates
+   
+   g) Schedule Updates
+      - Progress tracking
+      - Delay documentation
+      - Recovery plans
+      - Revised completion dates
+
+3. Contracts and Changes
+   Primary Characteristics: Legal language, contract terms, change order details
+   Common Elements:
+   - Contract numbers and dates
+   - Article and section numbering
+   - Signature blocks and dates
+   - Legal entity names and addresses
+   - Insurance requirements
+   - Bond information
+   - Scope of work descriptions
+   - Unit prices and quantities
+   - Terms and conditions
+   - Time and material rates
+   - AIA or standard form numbers
+   - Change order numbers and tracking
+   - Cost breakdowns and markups
+
+   Subcategories:
+   a) Prime Contract Agreement & General Conditions
+      - Contract terms/conditions
+      - Scope definitions
+      - Payment terms
+      - Legal obligations
+   
+   b) Contractors Payment & Performance Bond
+      - Surety information
+      - Coverage amounts
+      - Bond conditions
+      - Claims procedures
+   
+   c) Change Order Requests (CORs) and LOG
+      - Cost proposals
+      - Scope changes
+      - Time impact analysis
+      - Pricing breakdown
+   
+   d) Change Orders (COs) and LOG
+      - Approved modifications
+      - Cost adjustments
+      - Time extensions
+      - Scope revisions
+   
+   e) Subcontractor Contracts
+      - Scope of work
+      - Payment terms
+      - Insurance requirements
+      - Performance obligations
+   
+   f) Subcontractor Change Orders and LOG
+      - Scope modifications
+      - Price adjustments
+      - Schedule impacts
+      - Authorization signatures
+   
+   g) Backcharges
+      - Cost recovery claims
+      - Work deficiencies
+      - Corrective actions
+      - Payment deductions
+   
+   h) Construction Change Directives (CCDs) and LOG
+      - Directed changes
+      - Pricing methodology
+      - Implementation instructions
+      - Time impact statements
+
+    i) Change Notices
+      - Change requests
+      - Approval status
+      - Implementation instructions
+      - Time impact statements
+
+4. Meeting Minutes
+   Primary Characteristics: Dated discussion records, attendance lists, action items
+   Common Elements:
+   - Meeting number and date
+   - Attendee list with companies
+   - Distribution list
+   - Old business/new business format
+   - Action items with responsible parties
+   - Next meeting date/time
+   - Project status updates
+   - Safety discussions
+   - Schedule reviews
+   - RFI status updates
+   - Submittal status updates
+   - Quality control issues
+   - Weather conditions
+   - Signature blocks
+
+   Subcategories:
+   a) Pre-Bid Minutes
+      - Bidder questions
+      - Clarifications
+      - Site visit notes
+      - Addenda references
+   
+   b) Owner Meeting Minutes
+      - Progress updates
+      - Decision records
+      - Action items
+      - Schedule reviews
+   
+   c) Subcontractor Meeting Minutes
+      - Coordination issues
+      - Safety matters
+      - Quality control
+      - Schedule updates
+
+5. Pay Applications and Job Cost Information
+   Primary Characteristics: Financial documents, billing information, cost reports
+   Common Elements:
+   - AIA G702/G703 forms
+   - Schedule of values
+   - Previous/current payment columns
+   - Retention calculations
+   - Change order summaries
+   - Lien waivers
+   - Notary stamps
+   - Cost codes and descriptions
+   - Percentage complete calculations
+   - Labor rates and hours
+   - Material quantities and costs
+   - Equipment rates and hours
+   - Subcontractor breakdowns
+   - Certified payroll forms
+   - Tax ID numbers
+   - Invoice numbers and dates
+
+   Subcategories:
+   a) Engineer's/Owner's Estimate of Project Costs
+      - Cost projections
+      - Budget breakdowns
+      - Contingency amounts
+      - Cost analyses
+   
+   b) Contractors Estimate/Bid
+      - Detailed pricing
+      - Quantity takeoffs
+      - Unit prices
+      - Allowances
+   
+   c) Owners Bid Tabulation
+      - Bid comparisons
+      - Pricing analysis
+      - Contractor rankings
+      - Award recommendations
+   
+   d) Purchase Orders
+      - Material orders
+      - Vendor information
+      - Delivery schedules
+      - Payment terms
+   
+   e) Monthly Pay Applications and Backup
+      - Progress billing
+      - Lien waivers
+      - Supporting documentation
+      - Schedule of values
+   
+   f) Contractors Detailed Job Cost Report
+      - Cost tracking
+      - Budget comparisons
+      - Cost codes
+      - Expense details
+   
+   g) Subcontractors Detailed Job Cost Report
+      - Labor costs
+      - Material expenses
+      - Equipment charges
+      - Overhead allocation
+   
+   h) Payroll
+      - Labor rates
+      - Time records
+      - Benefits information
+      - Tax documentation
+
+6. Daily Reports / Field Reports
+   Primary Characteristics: Daily activity logs, weather conditions, workforce counts
+   Common Elements:
+   - Date and time stamps
+   - Weather conditions (temp, precipitation)
+   - Manpower counts by trade
+   - Equipment on site
+   - Materials received
+   - Work completed descriptions
+   - Delays or disruptions
+   - Safety incidents
+   - Quality issues
+   - Visitor log
+   - Delivery records
+   - Hours worked
+   - Areas worked
+   - Problems encountered
+   - Site conditions
+   - Photos or sketches
+
+   Subcategories:
+   a) Owner Representative/Architect
+      - Quality observations
+      - Design compliance
+      - Installation verification
+      - Progress assessment
+   
+   b) Contractor
+      - Work completed
+      - Resource allocation
+      - Safety incidents
+      - Weather conditions
+   
+   c) Subcontractor
+      - Task completion
+      - Material usage
+      - Labor hours
+      - Equipment utilization
+
+7. Inspection Reports and Punchlists
+   Primary Characteristics: Compliance checks, test results, deficiency lists
+   Common Elements:
+   - Inspector name and credentials
+   - Inspection date and time
+   - Code references
+   - Pass/fail checkboxes
+   - Location references
+   - Deficiency descriptions
+   - Correction requirements
+   - Follow-up dates
+   - Test results and data
+   - Photos of issues
+   - Compliance standards
+   - Sign-off signatures
+   - Permit numbers
+   - Building department stamps
+   - Test equipment used
+   - Calibration records
+
+   Subcategories:
+   a) City/County Inspection Reports
+      - Code compliance
+      - Permit inspections
+      - Violation notices
+      - Correction orders
+   
+   b) Defective Work Notices
+      - Quality issues
+      - Correction requirements
+      - Timeline for repairs
+      - Follow-up inspections
+   
+   c) Punchlists
+      - Incomplete items
+      - Deficiency lists
+      - Completion tracking
+      - Sign-off documentation
+   
+   d) Testing and Certification Documents
+      - Material tests
+      - System certifications
+      - Performance verification
+      - Compliance reports
+   
+   e) Turnover Inspection Report(s)
+      - Final inspections
+      - System verifications
+      - Owner training
+      - Documentation handover
+   
+   f) Threshold Inspection Report
+      - Structural inspections
+      - Critical systems
+      - Special inspections
+      - Engineer certifications
+   
+   g) Water Intrusion Report(s)
+      - Moisture testing
+      - Leak investigations
+      - Remediation recommendations
+      - Prevention measures
+
+8. Contemporaneous Documentation
+   Primary Characteristics: Communication records, project correspondence
+   Common Elements:
+   - Letterhead and logos
+   - Date and reference numbers
+   - Addressee information
+   - CC distribution lists
+   - Subject lines
+   - Reference numbers
+   - Tracking numbers
+   - Email headers
+   - Time stamps
+   - Response threading
+   - Attachment listings
+   - Signature blocks
+   - Company contact info
+   - Priority indicators
+   - Chain of communication
+   - File/photo references
+
+   Subcategories:
+   a) Correspondence
+      - Official letters
+      - Formal notices
+      - Project communications
+      - Documentation trails
+   
+   b) Emails
+      - Electronic communications
+      - Thread histories
+      - File attachments
+      - Distribution lists
+   
+   c) Memos
+      - Internal communications
+      - Policy statements
+      - Procedural guidance
+      - Team notifications
+   
+   d) Notice of Claims
+      - Claim descriptions
+      - Supporting evidence
+      - Relief requested
+      - Timeline documentation
+      - Liquidated Damages
+   
+   e) Transmittals
+      - Document tracking
+      - Delivery records
+      - Receipt confirmation
+      - Distribution lists
+   
+   f) Photographs
+      - Progress documentation
+      - Issue documentation
+      - Quality control
+      - Site conditions
+
+9. Miscellaneous
+   Primary Characteristics: Documents not fitting other categories
+   Common Elements:
+   - Various file formats
+   - Mixed content types
+   - Unique document structures
+   - Marketing materials
+   - Training documentation
+   - Site logistics plans
+   - Temporary facilities
+   - Progress photos/videos
+   - Press releases
+   - Company procedures
+   - Standard forms
+   - Templates
+   - Working documents
+   - Draft versions
+   - Internal memos
+
+   Subcategories:
+   a) Movies
+      - Video documentation
+      - Progress recordings
+      - Training materials
+      - Promotional content
+   
+   b) Working Estimates
+      - Cost calculations
+      - Quantity estimates
+      - Pricing worksheets
+      - Budget development
+   
+   c) Final Estimate
+      - Completed cost analysis
+      - Final quantities
+      - Pricing summaries
+      - Budget reconciliation
+   
+   d) Bid Summary
+      - Bid results
+      - Contractor comparisons
+      - Price analysis
+      - Award recommendations
 
