@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
 from pathlib import Path
-from document_classifier import DocumentClassifier
-from config import SecureConfig, setup_api_key
+from .document_classifier import DocumentClassifier
+from .config import SecureConfig, setup_api_key
 from openai import OpenAI
 import threading
 import queue
